@@ -1,0 +1,246 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Trial Drag</title>
+</head>
+<style>
+    *{
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        font-family: sans-serif;
+    }
+    body{
+        background: black;
+        text-align: center;
+    }
+    .questionwrap{
+        width: 90vw;
+        text-align: center;
+        margin: 30px auto;
+    }
+    .question{
+        margin: 20px;
+        display:inline-block;
+    }
+    .question img{
+
+        width: 100%;
+    }
+   .answrap{
+        background:gray;
+        height: 400px;
+        width:75%;
+        padding:50px;
+        margin: 20px auto;
+        
+    }
+    .answer{
+        padding: 15px;
+        height: 50px;
+        width: 200px;
+        background: rgb(59,61,61);
+        color: white;
+        border-radius: 5px;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .ansslot{
+        box-sizing: content-box;
+        padding: 10px;
+        height: 50px;
+        width: 200px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        display: inline-block;
+        background: #28282A;
+    }
+    .message{
+        box-sizing: content-box;
+        padding: 10px;
+        color: white;
+        width: 200px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        display: inline-block;
+
+    }
+    #timer ,#submit{
+        padding:20px;
+        display:inline-block;
+        text-align: center;
+        margin:50px 10px;
+        text-align: center;
+        width: 120px;
+        font-size: 120%;
+        background: #FE083B;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+</style>
+
+
+<body>
+ <div class="questionwrap">
+     <div class="question">
+         <img src="http://source.unsplash.com/random/200x200"><br>
+         <div class="ansslot" id="1"></div><br>
+         <div class="message" id="message1"></div>
+     </div>
+     <div class="question">
+             <img src="http://source.unsplash.com/random/200x200"><br> 
+            <div class="ansslot" id="2"></div><br>
+            <div class="message" id="message2"></div>
+        </div>
+        <div class="question">
+                 <img src="http://source.unsplash.com/random/200x200"><br> 
+                <div class="ansslot" id="3"></div><br>
+                <div class="message" id="message3"></div>
+            </div>
+ </div>  
+ 
+ <div class="answrap">
+     <p class="answer">STUFF1</p>
+     <p class="answer">STUFF2</p>
+     <p class="answer">STUFF3</p>
+ </div>
+ <div id="timer">60</div>
+ <div id="submit" onclick="submit()">SUBMIT</div>
+ <spun id="result" style="color:antiquewhite"></spun>
+
+</body>
+<script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+<script>
+    // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAjA5s1tbPq_l9pryBl4yiXCdoEHH0VYCw",
+    authDomain: "first-f53ce.firebaseapp.com",
+    databaseURL: "https://first-f53ce.firebaseio.com",
+    projectId: "first-f53ce",
+    storageBucket: "first-f53ce.appspot.com",
+    messagingSenderId: "748846558681"
+  };
+  firebase.initializeApp(config);
+  let db=firebase.firestore();
+  let allGivenAns={};
+    window.onload=starttimer;
+    function starttimer(){
+        let timeElement=document.getElementById("timer");
+        let submitButton=document.getElementById("submit");
+        let timer=setInterval(()=> {
+            if(timeElement.innerText=="0"){
+                submit();
+                timeElement.innerText="END";
+                submitButton.style.display="none";
+                clearInterval(timer)
+            }
+            else
+             timeElement.innerText=timeElement.innerText-1;
+    
+        },1000);
+        //console.log(timeElement);
+    }
+    let correctanswer={
+        '1':"STUFF1",
+        '2':"STUFF2",
+        '3':"STUFF3"
+        }
+        let givenans={}
+        let offset,mouseposition,currentanselement;
+        let answerelement=document.getElementsByClassName("answer");
+        //console.log(answerelement);
+        //console.log(Array.from(answerelement));
+        
+        
+        
+        Array.from(answerelement).forEach(answerelement => {
+            //console.log(answerelement)
+            let isDragged;
+            answerelement.addEventListener('mousedown',function(e){
+                //console.log("COME HERE");
+                
+               isDragged=true;
+               currentanselement=e.target;
+               offset=[
+                   answerelement.offsetLeft-e.clientX,
+                   answerelement.offsetTop-e.clientY
+               ];
+               //console.log(currentanselement);
+            },true);
+         document.addEventListener('mouseup',function(){
+             var ansslotelement=document.elementFromPoint(mouseposition.x+offset[0],mouseposition.y+offset[1]);
+             
+             console.log(ansslotelement.className=="ansslot")
+             if(ansslotelement.className=="ansslot" && !ansslotelement.hasChildNodes()){
+                 console.log(ansslotelement)
+                 ansslotelement.appendChild(currentanselement);
+                 givenans[ansslotelement.id]=currentanselement.innerHTML
+             }
+             else if(ansslotelement.className=="answrap"){
+                 ansslotelement.appendChild(currentanselement)
+             }
+             isDragged=false;
+             currentanselement.style.position="";
+         },true);
+            document.addEventListener('mousemove',function(event){
+                //console.log(isDragged);
+                
+                event.preventDefault();
+                if(isDragged){
+                    console.log("STUFF");
+                    
+                    mouseposition={
+                        x:event.clientX,
+                        y:event.clientY
+                    };
+                    currentanselement.style.position="absolute";
+                    currentanselement.style.left=(mouseposition.x+offset[0]+'px');
+                    currentanselement.style.top=(mouseposition.y+offset[1]+'px');
+               //console.log(currentanselement)
+                }
+    
+                
+                
+            },true);
+            //console.log(currentanselement);
+        });
+        function submit(){
+            const keys=Object.keys(correctanswer);
+            let message=[];
+            keys.forEach(key=>{
+                if(correctanswer[key]==givenans[key]){
+                    message.push(document.getElementById('message'+key));
+                    message[key-1].style.background="#01AEF0"
+                    message[key-1].innerHTML="CORRECT"
+                    allGivenAns[key]=givenans[key];
+                }
+                else{
+                    message.push(document.getElementById('message'+key))
+                    message[key-1].style.background="#FE083B";
+                    message[key-1].innerHTML="WRONG"
+                }
+            })
+            let result=document.getElementById("result");
+            result.innerHTML="";
+            let message2='';
+            db.collection("display").add(allGivenAns)
+           .then(snapshot=>{
+            db.doc("display/"+snapshot.id).onSnapshot(givenans=>{
+                givenans=givenans.data();
+                console.log(givenans);
+                
+                Object.keys(givenans).forEach(key=>{
+                    message2= message2 + "Answer" + " "+ key + ":"+ givenans[key];
+                })
+                console.log(message2);
+                
+                result.innerHTML = result.innerHTML + "<br>"+message2;
+            })
+           })
+           
+        }
+        </script>
+</html>
